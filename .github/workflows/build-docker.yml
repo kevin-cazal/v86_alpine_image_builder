@@ -151,13 +151,27 @@ jobs:
         echo "Generated alpine-state.bin successfully!"
         ls -lh ../alpine-state.bin
     
-    - name: Upload all generated files as artifacts
+    - name: Create images directory structure for v86
+      run: |
+        # Create images directory with v86-specific files
+        mkdir -p images
+        cp alpine-fs.json images/alpine-fs.json
+        cp -r alpine-rootfs-flat images/alpine-rootfs-flat
+        cp alpine-state.bin images/alpine-state.bin
+        
+        echo "V86 images directory created:"
+        tree images/ || ls -la images/
+    
+    - name: Upload Alpine rootfs tar (intermediate file)
       uses: actions/upload-artifact@v4
       with:
-        name: alpine-v86-files
-        path: |
-          alpine-rootfs.tar
-          alpine-fs.json
-          alpine-rootfs-flat/
-          alpine-state.bin
+        name: alpine-rootfs-tar
+        path: alpine-rootfs.tar
+        retention-days: 30
+    
+    - name: Upload V86 images directory
+      uses: actions/upload-artifact@v4
+      with:
+        name: v86-images
+        path: images/
         retention-days: 30
