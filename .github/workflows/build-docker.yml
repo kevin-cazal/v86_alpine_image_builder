@@ -141,15 +141,15 @@ jobs:
         cp alpine-fs.json v86/images/alpine-fs.json
         cp -r alpine-rootfs-flat v86/images/alpine-rootfs-flat
         
-        # Run the build-state.js script to generate alpine-state.bin
-        cd v86/tools/docker/alpine
-        node build-state.js
+        # Run the build-state.js script from V86 root directory
+        cd v86
+        node tools/docker/alpine/build-state.js
         
         # Copy the generated state file back to root for artifact upload
-        cp ../../../images/alpine-state.bin ../../../../alpine-state.bin
+        cp images/alpine-state.bin ../alpine-state.bin
         
         echo "Generated alpine-state.bin successfully!"
-        ls -lh ../../../../alpine-state.bin
+        ls -lh ../alpine-state.bin
     
     - name: Upload all generated files as artifacts
       uses: actions/upload-artifact@v4
