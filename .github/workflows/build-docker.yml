@@ -90,6 +90,36 @@ jobs:
         ls -lah "$OUT_ROOTFS_FLAT" | head -10
         echo "FSJSON and ROOTFS_FLAT created successfully!"
     
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Build V86 library
+      run: |
+        cd v86
+        make all
+    
+    - name: Prepare V86 images directory and generate state
+      run: |
+        # Create images directory structure that build-state.js expects
+        mkdir -p v86/images
+        
+        # Copy our generated files to the expected locations
+        cp alpine-rootfs.tar v86/images/alpine-rootfs.tar
+        cp alpine-fs.json v86/images/alpine-fs.json
+        cp -r alpine-rootfs-flat v86/images/alpine-rootfs-flat
+        
+        # Run the build-state.js script to generate alpine-state.bin
+        cd v86/tools/docker/alpine
+        node build-state.js
+        
+        # Copy the generated state file back to root for artifact upload
+        cp ../../../images/alpine-state.bin ../../../../alpine-state.bin
+        
+        echo "Generated alpine-state.bin successfully!"
+        ls -lh ../../../../alpine-state.bin
+    
     - name: Upload all generated files as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -98,4 +128,5 @@ jobs:
           alpine-rootfs.tar
           alpine-fs.json
           alpine-rootfs-flat/
+          alpine-state.bin
         retention-days: 30
