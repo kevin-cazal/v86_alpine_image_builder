@@ -10,7 +10,7 @@ ENV KERNEL=virt
 # Possible fix in the future: switch to coreutils instead of busybox, but it will increase the image size
 ENV ADDPKGS="python3 gcc musl-dev make docs micro busybox-extras e2fsprogs coreutils-doc bash musl musl-utils musl-locales tzdata lang kbd-bkeymaps"
 
-RUN apk add openrc alpine-base agetty alpine-conf linux-$KERNEL linux-firmware-none $ADDPKGS
+RUN apk add --no-cache openrc alpine-base agetty alpine-conf linux-$KERNEL linux-firmware-none $ADDPKGS
 
 
 #RUN sed -i 's/getty 38400 tty1/agetty --autologin root tty1 linux/' /etc/inittab
@@ -35,13 +35,3 @@ RUN mkinitfs -F "base virtio 9p" $(cat /usr/share/kernel/$KERNEL/kernel.release)
 ADD hooks/post-install.sh /opt/post-install.sh
 RUN chmod +x /opt/post-install.sh
 RUN /opt/post-install.sh
-
-RUN echo "Reclaiming space..." && \
-    BEFORE_SIZE=$(du -sb / 2>/dev/null | awk '{print $1}') && \
-    echo "Before cleanup: ${BEFORE_SIZE} bytes ($(echo "scale=2; ${BEFORE_SIZE}/1024/1024" | bc) MB)" && \
-    apk del --purge $ADDPKGS && \
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /var/log/* /var/lib/apk/* && \
-    AFTER_SIZE=$(du -sb / 2>/dev/null | awk '{print $1}') && \
-    echo "After cleanup: ${AFTER_SIZE} bytes ($(echo "scale=2; ${AFTER_SIZE}/1024/1024" | bc) MB)" && \
-    RECLAIMED=$((${BEFORE_SIZE} - ${AFTER_SIZE})) && \
-    echo "Space reclaimed: ${RECLAIMED} bytes ($(echo "scale=2; ${RECLAIMED}/1024/1024" | bc) MB)"
