@@ -15,7 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "v86": "^0.9.63"
+    "v86": "^0.5.262"
   },
   "engines": {
     "node": ">=18.0.0"
