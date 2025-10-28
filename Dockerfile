@@ -36,18 +36,16 @@ ADD hooks/post-install.sh /opt/post-install.sh
 RUN chmod +x /opt/post-install.sh
 RUN /opt/post-install.sh
 
-# Cleanup to reduce image size
-RUN rm -rf \
-    /opt/post-install.sh \
-    /var/cache/apk/* \
-    /tmp/* \
-    /var/tmp/* \
-    /usr/share/man/* \
-    /usr/share/doc/* \
-    ~/.cache/* \
-    /root/.cache/* \
-    && find /usr/share -name "*.md" -o -name "*.txt" | xargs rm -f
+RUN echo "Reclaiming space..."
+RUN du -s / 2>/dev/null > /before-cleanup.txt || true
+RUN apk del --purge $ADDPKGS
+RUN rm -rf /var/cache/apk/*
+RUN rm -rf /tmp/*
+RUN rm -rf /var/tmp/*
+RUN rm -rf /var/log/*
+RUN rm -rf /var/lib/apk/*
+RUN du -s / 2>/dev/null > /after-cleanup.txt || true
+RUN echo "Space reclaimed: $(($(cat /before-cleanup.txt | awk '{print $1}') - $(cat /after-cleanup.txt | awk '{print $1}'))) KB ($(echo "scale=2; $(($(cat /before-cleanup.txt | awk '{print $1}') - $(cat /after-cleanup.txt | awk '{print $1}'))) / 1024" | bc) MB)"
 
-# Final size check
-RUN du -sh / 2>/dev/null || true
 
+RUN rm -rf /before-cleanup.txt /after-cleanup.txt
