@@ -11,8 +11,8 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const OUTPUT_FILE = path.join(__dirname, "images/alpine-state.bin");
 
 var emulator = new V86({
-    bios: { url: path.join(__dirname, "node_modules/v86/bios/seabios.bin") },
-    vga_bios: { url: path.join(__dirname, "node_modules/v86/bios/vgabios.bin") },
+    bios: { url: path.join(__dirname, "../node_modules/v86/bios/seabios.bin") },
+    vga_bios: { url: path.join(__dirname, "../node_modules/v86/bios/vgabios.bin") },
     autostart: true,
     memory_size: 512 * 1024 * 1024,
     vga_memory_size: 8 * 1024 * 1024,
@@ -20,8 +20,8 @@ var emulator = new V86({
     bzimage_initrd_from_filesystem: true,
     cmdline: "rw root=host9p rootfstype=9p rootflags=trans=virtio,cache=loose modules=virtio_pci tsc=reliable init_on_free=on",
     filesystem: {
-        baseurl: path.join(__dirname, "images/alpine-rootfs-flat"),
-        basefs: path.join(__dirname, "images/alpine-fs.json"),
+        baseurl: path.join(__dirname, "alpine-rootfs-flat"),
+        basefs: path.join(__dirname, "alpine-fs.json"),
     },
 });
 
