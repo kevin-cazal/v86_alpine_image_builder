@@ -10,6 +10,12 @@ console.log("Using V86 from npm package");
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const OUTPUT_FILE = path.join(__dirname, "../images/alpine-state.bin");
 
+// Ensure images directory exists
+const imagesDir = path.join(__dirname, "../images");
+if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+}
+
 var emulator = new V86({
     wasm_path: path.join(__dirname, "../node_modules/v86/build/v86.wasm"),
     bios: { url: path.join(__dirname, "../bios/seabios.bin") },
