@@ -129,5 +129,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: v86-images
-        path: images/
+        path: images
         retention-days: 30
