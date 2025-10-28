@@ -31,3 +31,23 @@ RUN rc-update add killprocs shutdown
 
 # Generate initramfs with 9p modules
 RUN mkinitfs -F "base virtio 9p" $(cat /usr/share/kernel/$KERNEL/kernel.release)
+
+ADD hooks/post-install.sh /opt/post-install.sh
+RUN chmod +x /opt/post-install.sh
+RUN /opt/post-install.sh
+
+# Cleanup to reduce image size
+RUN rm -rf \
+    /opt/post-install.sh \
+    /var/cache/apk/* \
+    /tmp/* \
+    /var/tmp/* \
+    /usr/share/man/* \
+    /usr/share/doc/* \
+    ~/.cache/* \
+    /root/.cache/* \
+    && find /usr/share -name "*.md" -o -name "*.txt" | xargs rm -f
+
+# Final size check
+RUN du -sh / 2>/dev/null || true
+
