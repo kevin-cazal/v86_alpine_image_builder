@@ -93,13 +93,13 @@ jobs:
       with:
         node-version: '22.21.0'
     
-    - name: Install V86 from npm
+    - name: Install dependencies
       run: |
-        npm install v86
+        npm install
     
     - name: Prepare images directory and generate state
       run: |
-        # Create images directory structure that build-state-npm.js expects
+        # Create images directory structure that build-state.js expects
         mkdir -p images
         
         # Copy our generated files to the expected locations
@@ -108,7 +108,7 @@ jobs:
         cp -r alpine-rootfs-flat images/alpine-rootfs-flat
         
         # Run our custom build-state script that uses V86 from npm
-        node build-state-npm.js
+        node tools/build-state.js
         
         echo "Generated alpine-state.bin successfully!"
         ls -lh images/alpine-state.bin
