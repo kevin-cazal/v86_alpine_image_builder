@@ -13,8 +13,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -77,11 +75,11 @@ jobs:
         OUT_ROOTFS_FLAT="alpine-rootfs-flat"
         
         # Create FSJSON using fs2json.py tool
-        python3 v86/tools/fs2json.py --out "$OUT_FSJSON" "$OUT_ROOTFS_TAR"
+        python3 tools/fs2json.py --out "$OUT_FSJSON" "$OUT_ROOTFS_TAR"
         
         # Create ROOTFS_FLAT directory using copy-to-sha256.py tool
         mkdir -p "$OUT_ROOTFS_FLAT"
-        python3 v86/tools/copy-to-sha256.py "$OUT_ROOTFS_TAR" "$OUT_ROOTFS_FLAT"
+        python3 tools/copy-to-sha256.py "$OUT_ROOTFS_TAR" "$OUT_ROOTFS_FLAT"
         
         # Show results
         echo "Created files:"
@@ -95,71 +93,29 @@ jobs:
       with:
         node-version: '22.21.0'
     
-    - name: Set up Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        target: wasm32-unknown-unknown
-    
-    - name: Install build dependencies
+    - name: Install V86 from npm
       run: |
-        # Install additional dependencies that V86 might need
-        sudo apt-get update
-        sudo apt-get install -y build-essential python3-dev
+        npm install v86
     
-    - name: Build V86 library
+    - name: Prepare images directory and generate state
       run: |
-        cd v86
-        
-        # Debug: Check what files exist before build
-        echo "Files before build:"
-        ls -la build/ || echo "build directory doesn't exist yet"
-        
-        # Build V86
-        make all
-        
-        # Debug: Check what files exist after build
-        echo "Files after build:"
-        ls -la build/
-        
-        # Verify critical files exist
-        if [ ! -f "build/v86.wasm" ]; then
-          echo "ERROR: v86.wasm not found!"
-          find . -name "*.wasm" -type f
-          exit 1
-        fi
-        
-        echo "V86 build completed successfully"
-    
-    - name: Prepare V86 images directory and generate state
-      run: |
-        # Create images directory structure that build-state.js expects
-        mkdir -p v86/images
+        # Create images directory structure that build-state-npm.js expects
+        mkdir -p images
         
         # Copy our generated files to the expected locations
-        cp alpine-rootfs.tar v86/images/alpine-rootfs.tar
-        cp alpine-fs.json v86/images/alpine-fs.json
-        cp -r alpine-rootfs-flat v86/images/alpine-rootfs-flat
-        
-        # Run the build-state.js script from V86 root directory
-        cd v86
-        node tools/docker/alpine/build-state.js
-        
-        # Copy the generated state file back to root for artifact upload
-        cp images/alpine-state.bin ../alpine-state.bin
-        
-        echo "Generated alpine-state.bin successfully!"
-        ls -lh ../alpine-state.bin
-    
-    - name: Create images directory structure for v86
-      run: |
-        # Create images directory with v86-specific files
-        mkdir -p images
+        cp alpine-rootfs.tar images/alpine-rootfs.tar
         cp alpine-fs.json images/alpine-fs.json
         cp -r alpine-rootfs-flat images/alpine-rootfs-flat
-        cp alpine-state.bin images/alpine-state.bin
         
-        echo "V86 images directory created:"
+        # Run our custom build-state script that uses V86 from npm
+        node build-state-npm.js
+        
+        echo "Generated alpine-state.bin successfully!"
+        ls -lh images/alpine-state.bin
+    
+    - name: Verify images directory
+      run: |
+        echo "V86 images directory contents:"
         tree images/ || ls -la images/
     
     - name: Upload Alpine rootfs tar (intermediate file)
