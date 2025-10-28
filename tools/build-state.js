@@ -21,8 +21,8 @@ var emulator = new V86({
     bzimage_initrd_from_filesystem: true,
     cmdline: "rw root=host9p rootfstype=9p rootflags=trans=virtio,cache=loose modules=virtio_pci tsc=reliable init_on_free=on",
     filesystem: {
-        baseurl: path.join(__dirname, "alpine-rootfs-flat"),
-        basefs: path.join(__dirname, "alpine-fs.json"),
+        baseurl: path.join(__dirname, "../alpine-rootfs-flat"),
+        basefs: path.join(__dirname, "../alpine-fs.json"),
     },
 });
 
