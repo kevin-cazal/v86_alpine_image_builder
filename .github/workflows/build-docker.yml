@@ -107,6 +107,13 @@ jobs:
         cp alpine-fs.json images/alpine-fs.json
         cp -r alpine-rootfs-flat images/alpine-rootfs-flat
         
+        # Run pre-state hook if it exists
+        if [ -f "hooks/pre-state.sh" ]; then
+          echo "Running pre-state hook..."
+          chmod +x hooks/pre-state.sh
+          ./hooks/pre-state.sh
+        fi
+        
         # Run our custom build-state script that uses V86 from npm
         node tools/build-state.js
         
