@@ -11,6 +11,7 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const OUTPUT_FILE = path.join(__dirname, "images/alpine-state.bin");
 
 var emulator = new V86({
+    wasm_path: path.join(__dirname, "../node_modules/v86/build/v86.wasm"),
     bios: { url: path.join(__dirname, "../node_modules/v86/bios/seabios.bin") },
     vga_bios: { url: path.join(__dirname, "../node_modules/v86/bios/vgabios.bin") },
     autostart: true,
