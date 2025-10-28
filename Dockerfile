@@ -10,6 +10,8 @@ ENV KERNEL=virt
 # Possible fix in the future: switch to coreutils instead of busybox, but it will increase the image size
 ENV ADDPKGS="python3 gcc musl-dev make docs micro busybox-extras e2fsprogs coreutils-doc bash musl musl-utils musl-locales tzdata lang kbd-bkeymaps"
 
+ADD rootfs_overlay/ /
+
 RUN apk add --no-cache openrc alpine-base agetty alpine-conf linux-$KERNEL linux-firmware-none $ADDPKGS
 
 
@@ -35,3 +37,4 @@ RUN mkinitfs -F "base virtio 9p" $(cat /usr/share/kernel/$KERNEL/kernel.release)
 ADD hooks/post-install.sh /opt/post-install.sh
 RUN chmod +x /opt/post-install.sh
 RUN /opt/post-install.sh
+
