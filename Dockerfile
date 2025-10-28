@@ -37,11 +37,11 @@ RUN chmod +x /opt/post-install.sh
 RUN /opt/post-install.sh
 
 RUN echo "Reclaiming space..." && \
-    du -s / 2>/dev/null | awk '{print $1}' > /before-cleanup.txt && \
-    echo "Before cleanup: $(cat /before-cleanup.txt) KB" && \
+    BEFORE_SIZE=$(du -sb / 2>/dev/null | awk '{print $1}') && \
+    echo "Before cleanup: ${BEFORE_SIZE} bytes ($(echo "scale=2; ${BEFORE_SIZE}/1024/1024" | bc) MB)" && \
     apk del --purge $ADDPKGS && \
     rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /var/log/* /var/lib/apk/* && \
-    du -s / 2>/dev/null | awk '{print $1}' > /after-cleanup.txt && \
-    echo "After cleanup: $(cat /after-cleanup.txt) KB" && \
-    echo "Space reclaimed: $(($(cat /before-cleanup.txt) - $(cat /after-cleanup.txt))) KB ($(echo "scale=2; $(($(cat /before-cleanup.txt) - $(cat /after-cleanup.txt))) / 1024" | bc) MB)" && \
-    rm -rf /before-cleanup.txt /after-cleanup.txt
+    AFTER_SIZE=$(du -sb / 2>/dev/null | awk '{print $1}') && \
+    echo "After cleanup: ${AFTER_SIZE} bytes ($(echo "scale=2; ${AFTER_SIZE}/1024/1024" | bc) MB)" && \
+    RECLAIMED=$((${BEFORE_SIZE} - ${AFTER_SIZE})) && \
+    echo "Space reclaimed: ${RECLAIMED} bytes ($(echo "scale=2; ${RECLAIMED}/1024/1024" | bc) MB)"
